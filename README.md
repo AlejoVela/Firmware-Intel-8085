@@ -1,6 +1,6 @@
 # Firmware Intel 8085
 Contiene archivos con:
-1. Rotaciones por display matricial de 1, 2, 3 y 4 números.
+1. Firmware Rotaciones y visualización por display matricial de 1, 2, 3 y 4 números.
 2. Firmware para resta de 2 Números de 0-99 
 3. Firmware Converción BCD/BINARIO
 4. Firmware Converción Binario/Bcd de 0 a 9999
