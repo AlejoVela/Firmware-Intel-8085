@@ -1,0 +1,92 @@
+.ORG 100H
+  ;PARA ESTE ALGORITMO SE MOTRARA PRIMERO EL RESULTADO DEL COCIENTE Y LUEGO EL RESIDUO
+  ;COCIENTE EN L = 50H Y RESIDUO EN L = 51H
+  ;DATOS DE PRUEBA
+  MVI H, 10H
+  MVI L, 50H
+  MVI M, 3EH                     ;62->3E, DIVIDENDO
+  INR L
+  MVI M, 1EH                     ;30->1E, DIVISOR
+  ;TERMINAN DATOS DE PRUEBA
+
+  MVI L, 50H                     ;UBICAMOS EL DIVIDENDO
+  MOV A, M                       ;GUARDAMOS EL DIVIDENDO EN EL ACUMULADOR
+  INR L                          ;INCREMENTAMOS PARA LLEGAR AL DIVISOR
+  CMP M                          ;COMPARAMOS EL DIVIDENDO CON EL DIVISOR
+  JC DiviMenor
+  JZ DiviEqual
+    MOV A, M                     ;TRAEMOS EL DIVISOR AL ACUMULADOR
+    CPI 02H
+    JC DIVISORMENORADOS
+      ;SI TODO SALE BIEN PROCEDEMOS CON EL PROCESO NORMAL DE DIVISION
+      MVI L, 50H
+      MOV B, M                        ;TRAEMOS A B, EL DIVIDENDO
+      MVI D, 00H
+      MVI L, 51H                      ;APUNTAMOS AL DIVISOR
+
+      ResiEqual: ANA A
+        ResiMayor: MOV A, M            ;TRAEMOS EL DIVISOR AL ACUMULADOR
+          CMA                          ;COMPLEMENTAMOS AL DIVISOR
+          ADD B                        ;SUMAMOS EL RESIDUO CON EL DIVISOR COMPLEMENTADO
+          ACI 00H                      ;SUMAMOS EL ACARREO SI LO HAY
+          MOV B, A                     ;GUARDAMOS EL RESIDUO EN B
+          INR D                        ;AUMENTAMOS EL COCIENTE QUE ESTARA EN D
+          CMP M                        ;APROVECHAMOS QUE EL RESIDUO SIGUE ESTANDO EN EL ACUMULADOR PARA HACER LA COMPARACIÓN
+        JNC ResiMayor
+      JZ ResiEqual                     ;SI EL RESIDUO ES IGUAL AL DIVISOR HACEMOS UNA ITERACION MAS
+
+      ;RESIDUO QUEDA EN B Y CONCIENTE QUEDA EN D
+      MVI L, 50H
+      MOV M, D
+      INR L
+      MOV M, B
+
+      ;CONVERTIMOS A BCD
+      ;MOSTRAMOS EN DISPLAY
+
+      HLT                          ;INTERRUMPIMOS EL CICLO
+
+      ;SI EL DIVISOR ES UNO EL COCIENTE SERA EL DIVIDENDO Y EL RESIDUO SERA CERO
+    DIVISORMENORADOS: CPI 01H
+          JNZ DIVISORUNO                 ;SI ES UNO ENTRA
+            MVI L, 51H                  ;APUNTAMOS AL DIVIDENDO YA QUE YA TENEMOS EL DIVIDENDO COMO COCIENTE
+            MVI M, 00H                  ;GUARDAMOS UN CERO EN EL RESIDUO
+
+            ;CONVERTIMOS A BCD
+            ;MOSTRAMOS EN DISPLAY
+
+            HLT                                ;INTERRUMPIMOS EL CICLO
+
+        DIVISORUNO: MVI L, 50H                 ;SI EL DIVISOR ES CERO, PONEMOS UN CERO EN EL COCIENTE Y EL EN EL RESIDUO
+         MVI M, 00H                 ;GUARDAMOS UN CERO EN EL RESIDUO
+         INR L
+         MVI M, 00H
+
+         ;CONVERTIMOS A BCD
+         ;MOSTRAMOS EN DISPLAY
+
+         HLT                                ;INTERRUMPIMOS EL CICLO
+
+  ;Cuando el divisor es mayor que el dividendo, el residuo será el dividendo y el cociente cero
+  DiviMenor: MVI L, 50H          ;DIRECCIONAMOS AL DIVIDENDO
+    MOV A, M                     ;GUARDAMOS EL DIVIDENDO EN EL ACUMULADOR
+    MVI M, 00H                   ;ENVIAMOS UN CERO PARA EL residuo
+    INR L                        ;INCREMENTAMOS PARA GUARDAR EL DIVIDENDO COMO RESUDUO
+    MOV M, A                     ;ENVIAMOS EL DIVIDENDO COMO RESIDUO
+
+    ;CONVERTIMOS A BCD
+    ;MOSTRAMOS EN DISPLAY
+
+    HLT                          ;INTERRUMPIMOS EL CICLO PARA TERMINAR
+
+  ;CUANDO EL DIVISOR Y EL COCIENTE SON IGUALES EL COCIENTE SERA 1 Y EL RESIDUO CERO
+  DiviEqual: MVI M, 00H          ;ENVIAMOS UN CERO AL RESIDUO
+    DCR L                        ;DECREMENTAMOS L PARA LLEGAR AL COCIENTE
+    MVI M, 01H                   ;E INGRESAMOS UN 1 EN EL COCIENTE
+
+    ;CONVERTIMOS A BCD
+    ;MOSTRAMOS EN DISPLAY
+
+    HLT                            ;INTERRUMPIMOS EL CIC
+
+.END
